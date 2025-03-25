@@ -1,0 +1,2128 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema di Gestione Condomini</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            background-color: #343a40;
+            color: white;
+            min-height: 100vh;
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem 1rem;
+            margin: 0.2rem 0;
+            border-radius: 0.25rem;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #4a86e8;
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #4a86e8;
+            border-color: #4a86e8;
+        }
+        .btn-primary:hover {
+            background-color: #3a76d8;
+            border-color: #3a76d8;
+        }
+        .table th {
+            background-color: #f2f2f2;
+        }
+        .reading-history {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .form-header {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-content {
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+            color: #4a86e8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar d-flex flex-column p-3">
+                <h3 class="mb-4 text-center">GestioneCondomini</h3>
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-bs-toggle="tab" data-bs-target="#dashboard">
+                            <i class="bi bi-house-door me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-bs-toggle="tab" data-bs-target="#condominiums">
+                            <i class="bi bi-building me-2"></i>Condomini
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-bs-toggle="tab" data-bs-target="#apartments">
+                            <i class="bi bi-door-open me-2"></i>Appartamenti
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-bs-toggle="tab" data-bs-target="#readings">
+                            <i class="bi bi-speedometer2 me-2"></i>Letture
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-bs-toggle="tab" data-bs-target="#bills">
+                            <i class="bi bi-receipt me-2"></i>Fatture
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-bs-toggle="tab" data-bs-target="#settings">
+                            <i class="bi bi-gear me-2"></i>Impostazioni
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main content -->
+            <div class="col-md-10 main-content">
+                <div class="tab-content">
+                    <!-- Dashboard -->
+                    <div class="tab-pane fade show active" id="dashboard">
+                        <h2 class="mb-4">Dashboard</h2>
+                        
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card text-white bg-primary mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Condomini</h5>
+                                        <p class="card-text" id="condominiums-count">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-success mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Appartamenti</h5>
+                                        <p class="card-text" id="apartments-count">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-info mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Letture Mensili</h5>
+                                        <p class="card-text" id="readings-count">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-warning mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Fatture Emesse</h5>
+                                        <p class="card-text" id="bills-count">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Condomini Recenti</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nome</th>
+                                                    <th>Indirizzo</th>
+                                                    <th>Appartamenti</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="recent-condominiums">
+                                                <!-- Dati dinamici -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Letture Recenti</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Appartamento</th>
+                                                    <th>Tipo</th>
+                                                    <th>Data</th>
+                                                    <th>Valore</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="recent-readings">
+                                                <!-- Dati dinamici -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Condomini -->
+                    <div class="tab-pane fade" id="condominiums">
+                        <div class="d-flex justify-content-between mb-4">
+                            <h2>Gestione Condomini</h2>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCondominiumModal">
+                                <i class="bi bi-plus-circle me-2"></i>Nuovo Condominio
+                            </button>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="table table-striped" id="condominiums-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nome</th>
+                                            <th>Indirizzo</th>
+                                            <th>Città</th>
+                                            <th>Appartamenti</th>
+                                            <th>Azioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dati dinamici -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appartamenti -->
+                    <div class="tab-pane fade" id="apartments">
+                        <div class="d-flex justify-content-between mb-4">
+                            <h2>Gestione Appartamenti</h2>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addApartmentModal">
+                                <i class="bi bi-plus-circle me-2"></i>Nuovo Appartamento
+                            </button>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="filter-condominium" class="form-label">Filtra per Condominio</label>
+                                    <select class="form-select" id="filter-condominium">
+                                        <option value="">Tutti i Condomini</option>
+                                        <!-- Opzioni dinamiche -->
+                                    </select>
+                                </div>
+                                
+                                <table class="table table-striped" id="apartments-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Condominio</th>
+                                            <th>Numero</th>
+                                            <th>Proprietario</th>
+                                            <th>Metri Quadri</th>
+                                            <th>Residenti</th>
+                                            <th>Azioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dati dinamici -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Letture -->
+                    <div class="tab-pane fade" id="readings">
+                        <div class="d-flex justify-content-between mb-4">
+                            <h2>Gestione Letture Contatori</h2>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addReadingModal">
+                                <i class="bi bi-plus-circle me-2"></i>Nuova Lettura
+                            </button>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="filter-reading-condominium" class="form-label">Condominio</label>
+                                        <select class="form-select" id="filter-reading-condominium">
+                                            <option value="">Tutti i Condomini</option>
+                                            <!-- Opzioni dinamiche -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="filter-reading-apartment" class="form-label">Appartamento</label>
+                                        <select class="form-select" id="filter-reading-apartment">
+                                            <option value="">Tutti gli Appartamenti</option>
+                                            <!-- Opzioni dinamiche -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="filter-reading-type" class="form-label">Tipo Lettura</label>
+                                        <select class="form-select" id="filter-reading-type">
+                                            <option value="">Tutti i Tipi</option>
+                                            <option value="electricity">Elettricità</option>
+                                            <option value="water">Acqua</option>
+                                            <option value="gas">Gas</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <table class="table table-striped" id="readings-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Condominio</th>
+                                            <th>Appartamento</th>
+                                            <th>Tipo</th>
+                                            <th>Data</th>
+                                            <th>Valore</th>
+                                            <th>Azioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dati dinamici -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fatture -->
+                    <div class="tab-pane fade" id="bills">
+                        <div class="d-flex justify-content-between mb-4">
+                            <h2>Gestione Fatture</h2>
+                            <button class="btn btn<!-- Continuazione del codice precedente -->
+
+                                <div class="d-flex justify-content-between mb-4">
+                                    <h2>Gestione Fatture</h2>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateBillModal">
+                                        <i class="bi bi-plus-circle me-2"></i>Genera Fattura
+                                    </button>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="filter-bill-condominium" class="form-label">Condominio</label>
+                                                <select class="form-select" id="filter-bill-condominium">
+                                                    <option value="">Tutti i Condomini</option>
+                                                    <!-- Opzioni dinamiche -->
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="filter-bill-apartment" class="form-label">Appartamento</label>
+                                                <select class="form-select" id="filter-bill-apartment">
+                                                    <option value="">Tutti gli Appartamenti</option>
+                                                    <!-- Opzioni dinamiche -->
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="filter-bill-period" class="form-label">Periodo</label>
+                                                <select class="form-select" id="filter-bill-period">
+                                                    <option value="">Tutti i Periodi</option>
+                                                    <!-- Opzioni dinamiche -->
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <table class="table table-striped" id="bills-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Condominio</th>
+                                                    <th>Appartamento</th>
+                                                    <th>Periodo</th>
+                                                    <th>Data Emissione</th>
+                                                    <th>Importo</th>
+                                                    <th>Stato</th>
+                                                    <th>Azioni</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Dati dinamici -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+        
+                            <!-- Impostazioni -->
+                            <div class="tab-pane fade" id="settings">
+                                <h2 class="mb-4">Impostazioni</h2>
+                                
+                                <div class="card">
+                                    <div class="card-body">
+                                        <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active" id="tariffs-tab" data-bs-toggle="tab" data-bs-target="#tariffs" type="button" role="tab">Tariffe</button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" id="company-tab" data-bs-toggle="tab" data-bs-target="#company" type="button" role="tab">Dati Aziendali</button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" id="backup-tab" data-bs-toggle="tab" data-bs-target="#backup" type="button" role="tab">Backup & Ripristino</button>
+                                            </li>
+                                        </ul>
+                                        
+                                        <div class="tab-content" id="settingsTabContent">
+                                            <div class="tab-pane fade show active" id="tariffs" role="tabpanel">
+                                                <h4 class="form-header">Gestione Tariffe</h4>
+                                                
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped" id="tariffs-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Tipo</th>
+                                                                <th>Prezzo Unitario</th>
+                                                                <th>Unità di Misura</th>
+                                                                <th>Costo Fisso</th>
+                                                                <th>Azioni</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>Elettricità</td>
+                                                                <td>0.14900</td>
+                                                                <td>kWh</td>
+                                                                <td>10.00</td>
+                                                                <td>
+                                                                    <button class="btn btn-sm btn-outline-primary" onclick="editTariff('electricity')">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Gas</td>
+                                                                <td>0.85000</td>
+                                                                <td>m³</td>
+                                                                <td>15.00</td>
+                                                                <td>
+                                                                    <button class="btn btn-sm btn-outline-primary" onclick="editTariff('gas')">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Acqua</td>
+                                                                <td>1.50000</td>
+                                                                <td>m³</td>
+                                                                <td>8.00</td>
+                                                                <td>
+                                                                    <button class="btn btn-sm btn-outline-primary" onclick="editTariff('water')">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="tab-pane fade" id="company" role="tabpanel">
+                                                <h4 class="form-header">Dati Aziendali</h4>
+                                                
+                                                <form id="company-form">
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-6">
+                                                            <label for="company-name" class="form-label">Nome Azienda</label>
+                                                            <input type="text" class="form-control" id="company-name">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="company-vat" class="form-label">P. IVA</label>
+                                                            <input type="text" class="form-control" id="company-vat">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-6">
+                                                            <label for="company-address" class="form-label">Indirizzo</label>
+                                                            <input type="text" class="form-control" id="company-address">
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label for="company-city" class="form-label">Città</label>
+                                                            <input type="text" class="form-control" id="company-city">
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <label for="company-zip" class="form-label">CAP</label>
+                                                            <input type="text" class="form-control" id="company-zip">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-6">
+                                                            <label for="company-email" class="form-label">Email</label>
+                                                            <input type="email" class="form-control" id="company-email">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="company-phone" class="form-label">Telefono</label>
+                                                            <input type="text" class="form-control" id="company-phone">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="d-flex justify-content-end">
+                                                        <button type="submit" class="btn btn-primary">Salva Dati Aziendali</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            
+                                            <div class="tab-pane fade" id="backup" role="tabpanel">
+                                                <h4 class="form-header">Backup & Ripristino</h4>
+                                                
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="card">
+                                                            <div class="card-body">
+                                                                <h5 class="card-title">Esporta Dati</h5>
+                                                                <p class="card-text">Esporta tutti i dati in un file JSON per il backup.</p>
+                                                                <button class="btn btn-primary" onclick="exportData()">
+                                                                    <i class="bi bi-download me-2"></i>Esporta Dati
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-md-6">
+                                                        <div class="card">
+                                                            <div class="card-body">
+                                                                <h5 class="card-title">Importa Dati</h5>
+                                                                <p class="card-text">Importa dati da un file JSON di backup.</p>
+                                                                <div class="mb-3">
+                                                                    <input class="form-control" type="file" id="import-file">
+                                                                </div>
+                                                                <button class="btn btn-primary" onclick="importData()">
+                                                                    <i class="bi bi-upload me-2"></i>Importa Dati
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Modali -->
+            <!-- Modal Nuovo Condominio -->
+            <div class="modal fade" id="addCondominiumModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Aggiungi Nuovo Condominio</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add-condominium-form">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="condominium-name" class="form-label">Nome Condominio</label>
+                                        <input type="text" class="form-control" id="condominium-name" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="condominium-code" class="form-label">Codice</label>
+                                        <input type="text" class="form-control" id="condominium-code">
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="condominium-address" class="form-label">Indirizzo</label>
+                                        <input type="text" class="form-control" id="condominium-address" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="condominium-city" class="form-label">Città</label>
+                                        <input type="text" class="form-control" id="condominium-city" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="condominium-zip" class="form-label">CAP</label>
+                                        <input type="text" class="form-control" id="condominium-zip" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="condominium-admin" class="form-label">Amministratore</label>
+                                        <input type="text" class="form-control" id="condominium-admin">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="condominium-email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="condominium-email">
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="condominium-phone" class="form-label">Telefono</label>
+                                        <input type="text" class="form-control" id="condominium-phone">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="condominium-fiscal-code" class="form-label">Codice Fiscale</label>
+                                        <input type="text" class="form-control" id="condominium-fiscal-code">
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label for="condominium-notes" class="form-label">Note</label>
+                                        <textarea class="form-control" id="condominium-notes" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                            <button type="button" class="btn btn-primary" onclick="addCondominium()">Salva</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Modal Nuovo Appart<!-- Modal Nuovo Appartamento -->
+    <div class="modal fade" id="addApartmentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Aggiungi Nuovo Appartamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-apartment-form">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="apartment-condominium" class="form-label">Condominio</label>
+                                <select class="form-select" id="apartment-condominium" required>
+                                    <option value="">Seleziona Condominio</option>
+                                    <!-- Opzioni dinamiche -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="apartment-number" class="form-label">Numero/Interno</label>
+                                <input type="text" class="form-control" id="apartment-number" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="apartment-floor" class="form-label">Piano</label>
+                                <input type="text" class="form-control" id="apartment-floor">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="apartment-size" class="form-label">Metri Quadri</label>
+                                <input type="number" class="form-control" id="apartment-size" required>
+                            </div>
+                        </div>
+                        
+                        <h6 class="form-header">Proprietario</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="apartment-owner-name" class="form-label">Nome e Cognome</label>
+                                <input type="text" class="form-control" id="apartment-owner-name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="apartment-owner-fiscal-code" class="form-label">Codice Fiscale</label>
+                                <input type="text" class="form-control" id="apartment-owner-fiscal-code">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="apartment-owner-email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="apartment-owner-email">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="apartment-owner-phone" class="form-label">Telefono</label>
+                                <input type="text" class="form-control" id="apartment-owner-phone">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="apartment-residents" class="form-label">Numero Residenti</label>
+                                <input type="number" class="form-control" id="apartment-residents" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="apartment-type" class="form-label">Tipologia</label>
+                                <select class="form-select" id="apartment-type">
+                                    <option value="residential">Residenziale</option>
+                                    <option value="commercial">Commerciale</option>
+                                    <option value="garage">Box/Garage</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="apartment-notes" class="form-label">Note</label>
+                                <textarea class="form-control" id="apartment-notes" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" onclick="addApartment()">Salva</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuova Lettura -->
+    <div class="modal fade" id="addReadingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registra Nuova Lettura</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-reading-form">
+                        <div class="mb-3">
+                            <label for="reading-condominium" class="form-label">Condominio</label>
+                            <select class="form-select" id="reading-condominium" required onchange="loadApartmentsForCondominium()">
+                                <option value="">Seleziona Condominio</option>
+                                <!-- Opzioni dinamiche -->
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reading-apartment" class="form-label">Appartamento</label>
+                            <select class="form-select" id="reading-apartment" required>
+                                <option value="">Seleziona Appartamento</option>
+                                <!-- Opzioni dinamiche -->
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reading-type" class="form-label">Tipo Lettura</label>
+                            <select class="form-select" id="reading-type" required>
+                                <option value="">Seleziona Tipo</option>
+                                <option value="electricity">Elettricità</option>
+                                <option value="water">Acqua</option>
+                                <option value="gas">Gas</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reading-date" class="form-label">Data Lettura</label>
+                            <input type="date" class="form-control" id="reading-date" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reading-value" class="form-label">Valore</label>
+                            <input type="number" step="0.01" class="form-control" id="reading-value" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reading-notes" class="form-label">Note</label>
+                            <textarea class="form-control" id="reading-notes" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" onclick="addReading()">Salva</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Genera Fattura -->
+    <div class="modal fade" id="generateBillModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Genera Fattura</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="generate-bill-form">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="bill-condominium" class="form-label">Condominio</label>
+                                <select class="form-select" id="bill-condominium" required onchange="loadApartmentsForBilling()">
+                                    <option value="">Seleziona Condominio</option>
+                                    <!-- Opzioni dinamiche -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="bill-apartment" class="form-label">Appartamento</label>
+                                <select class="form-select" id="bill-apartment" required>
+                                    <option value="">Seleziona Appartamento</option>
+                                    <option value="all">Tutti gli Appartamenti</option>
+                                    <!-- Opzioni dinamiche -->
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="bill-start-date" class="form-label">Data Inizio</label>
+                                <input type="date" class="form-control" id="bill-start-date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="bill-end-date" class="form-label">Data Fine</label>
+                                <input type="date" class="form-control" id="bill-end-date" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="bill-issue-date" class="form-label">Data Emissione</label>
+                                <input type="date" class="form-control" id="bill-issue-date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="bill-due-date" class="form-label">Data Scadenza</label>
+                                <input type="date" class="form-control" id="bill-due-date" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="include-all-utilities" checked>
+                            <label class="form-check-label" for="include-all-utilities">
+                                Includi tutte le utenze (Elettricità, Acqua, Gas)
+                            </label>
+                        </div>
+                        
+                        <div id="utility-selection" class="d-none">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="include-electricity">
+                                <label class="form-check-label" for="include-electricity">
+                                    Elettricità
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="include-water">
+                                <label class="form-check-label" for="include-water">
+                                    Acqua
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="include-gas">
+                                <label class="form-check-label" for="include-gas">
+                                    Gas
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="send-email">
+                            <label class="form-check-label" for="send-email">
+                                Invia fattura via email
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" onclick="generateBill()">Genera Fattura</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Visualizza Fattura -->
+    <div class="modal fade" id="viewBillModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dettaglio Fattura</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="bill-preview">
+                    <!-- Contenuto dinamico della fattura -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                    <button type="button" class="btn btn-primary" onclick="printBill()">
+                        <i class="bi bi-printer me-2"></i>Stampa
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="downloadBillPDF()">
+                        <i class="bi bi-download me-2"></i>Scarica PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Modifica Tariffa -->
+    <div class="modal fade" id="editTariffModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifica Tariffa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-tariff-form">
+                        <input type="hidden" id="tariff-type">
+                        
+                        <div class="mb-3">
+                            <label for="tariff-name" class="form-label">Tipo Utenza</label>
+                            <input type="text" class="form-control" id="tariff-name" disabled>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="tariff-price" class="form-label">Prezzo Unitario</label>
+                            <div class="input-group">
+                                <input type="number" step="0.00001" class="form-control" id="tariff-price" required>
+                                <span class="input-group-text" id="tariff-unit">€/kWh</span>
+                            </div></div>
+                        
+                            <div class="mb-3">
+                                <label for="tariff-fixed-cost" class="form-label">Costo Fisso</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" class="form-control" id="tariff-fixed-cost" required>
+                                    <span class="input-group-text">€</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="tariff-description" class="form-label">Descrizione</label>
+                                <textarea class="form-control" id="tariff-description" rows="2"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                        <button type="button" class="btn btn-primary" onclick="saveTariff()">Salva</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- JavaScript della pagina -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Database simulato utilizzando localStorage
+            const DB_KEY = 'condominium_management_system';
+            
+            // Struttura dati iniziale
+            const initialData = {
+                condominiums: [],
+                apartments: [],
+                readings: [],
+                bills: [],
+                tariffs: {
+                    electricity: { price: 0.14900, unit: 'kWh', fixedCost: 10.00, description: 'Tariffa energia elettrica' },
+                    gas: { price: 0.85000, unit: 'm³', fixedCost: 15.00, description: 'Tariffa gas naturale' },
+                    water: { price: 1.50000, unit: 'm³', fixedCost: 8.00, description: 'Tariffa acqua potabile' }
+                },
+                company: {
+                    name: '',
+                    vat: '',
+                    address: '',
+                    city: '',
+                    zip: '',
+                    email: '',
+                    phone: ''
+                }
+            };
+            
+            // Inizializzazione del database
+            function initDB() {
+                if (!localStorage.getItem(DB_KEY)) {
+                    localStorage.setItem(DB_KEY, JSON.stringify(initialData));
+                }
+                return JSON.parse(localStorage.getItem(DB_KEY));
+            }
+            
+            // Salvataggio dati nel database
+            function saveDB(data) {
+                localStorage.setItem(DB_KEY, JSON.stringify(data));
+            }
+            
+            // Generazione ID univoco
+            function generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2);
+            }
+            
+            // Formattazione data in italiano
+            function formatDate(dateString) {
+                const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                return new Date(dateString).toLocaleDateString('it-IT', options);
+            }
+            
+            // Caricamento dati iniziali
+            document.addEventListener('DOMContentLoaded', function() {
+                loadDashboard();
+                loadCondominiums();
+                loadApartments();
+                loadReadings();
+                loadBills();
+                loadCompanyData();
+                
+                // Event listeners per i filtri
+                document.getElementById('filter-condominium').addEventListener('change', loadApartments);
+                document.getElementById('filter-reading-condominium').addEventListener('change', updateApartmentFilter);
+                document.getElementById('filter-reading-apartment').addEventListener('change', loadReadings);
+                document.getElementById('filter-reading-type').addEventListener('change', loadReadings);
+                document.getElementById('filter-bill-condominium').addEventListener('change', updateBillApartmentFilter);
+                document.getElementById('filter-bill-apartment').addEventListener('change', loadBills);
+                document.getElementById('filter-bill-period').addEventListener('change', loadBills);
+                
+                // Event listener per selettore utenze
+                document.getElementById('include-all-utilities').addEventListener('change', function() {
+                    document.getElementById('utility-selection').classList.toggle('d-none', this.checked);
+                });
+                
+                // Imposta data corrente nei campi di data
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('reading-date').value = today;
+                document.getElementById('bill-issue-date').value = today;
+                
+                // Imposta date predefinite per periodo fatturazione
+                const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                const lastDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+                document.getElementById('bill-start-date').value = firstDayOfMonth.toISOString().split('T')[0];
+                document.getElementById('bill-end-date').value = lastDayOfMonth.toISOString().split('T')[0];
+                
+                // Imposta data scadenza a 30 giorni da oggi
+                const dueDate = new Date();
+                dueDate.setDate(dueDate.getDate() + 30);
+                document.getElementById('bill-due-date').value = dueDate.toISOString().split('T')[0];
+            });
+            
+            // DASHBOARD
+            function loadDashboard() {
+                const db = initDB();
+                
+                // Aggiorna contatori
+                document.getElementById('condominiums-count').textContent = db.condominiums.length;
+                document.getElementById('apartments-count').textContent = db.apartments.length;
+                document.getElementById('readings-count').textContent = db.readings.length;
+                document.getElementById('bills-count').textContent = db.bills.length;
+                
+                // Carica condomini recenti
+                const recentCondominiumsTable = document.getElementById('recent-condominiums');
+                recentCondominiumsTable.innerHTML = '';
+                
+                const recentCondominiums = db.condominiums.slice(0, 5);
+                
+                if (recentCondominiums.length === 0) {
+                    recentCondominiumsTable.innerHTML = '<tr><td colspan="3" class="text-center">Nessun condominio registrato</td></tr>';
+                } else {
+                    recentCondominiums.forEach(condominium => {
+                        const apartmentsCount = db.apartments.filter(apt => apt.condominiumId === condominium.id).length;
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${condominium.name}</td>
+                            <td>${condominium.address}, ${condominium.city}</td>
+                            <td>${apartmentsCount}</td>
+                        `;
+                        recentCondominiumsTable.appendChild(row);
+                    });
+                }
+                
+                // Carica letture recenti
+                const recentReadingsTable = document.getElementById('recent-readings');
+                recentReadingsTable.innerHTML = '';
+                
+                const recentReadings = db.readings.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+                
+                if (recentReadings.length === 0) {
+                    recentReadingsTable.innerHTML = '<tr><td colspan="4" class="text-center">Nessuna lettura registrata</td></tr>';
+                } else {
+                    recentReadings.forEach(reading => {
+                        const apartment = db.apartments.find(apt => apt.id === reading.apartmentId);
+                        const apartmentName = apartment ? `${apartment.number}` : 'N/D';
+                        
+                        const typeMap = {
+                            'electricity': 'Elettricità',
+                            'water': 'Acqua',
+                            'gas': 'Gas'
+                        };
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${apartmentName}</td>
+                            <td>${typeMap[reading.type]}</td>
+                            <td>${formatDate(reading.date)}</td>
+                            <td>${reading.value} ${db.tariffs[reading.type].unit}</td>
+                        `;
+                        recentReadingsTable.appendChild(row);
+                    });
+                }
+            }
+            
+            // CONDOMINI
+            function loadCondominiums() {
+                const db = initDB();
+                
+                // Popola tabella condomini
+                const condominiumsTable = document.getElementById('condominiums-table').getElementsByTagName('tbody')[0];
+                condominiumsTable.innerHTML = '';
+                
+                if (db.condominiums.length === 0) {
+                    condominiumsTable.innerHTML = '<tr><td colspan="6" class="text-center">Nessun condominio registrato</td></tr>';
+                } else {
+                    db.condominiums.forEach(condominium => {
+                        const apartmentsCount = db.apartments.filter(apt => apt.condominiumId === condominium.id).length;
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${condominium.id.substring(0, 6)}</td>
+                            <td>${condominium.name}</td>
+                            <td>${condominium.address}</td>
+                            <td>${condominium.city}</td>
+                            <td>${apartmentsCount}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="viewCondominium('${condominium.id}')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success me-1" onclick="editCondominium('${condominium.id}')">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteCondominium('${condominium.id}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        condominiumsTable.appendChild(row);
+                    });
+                }
+                
+                // Aggiorna le select di condomini
+                populateCondominiumSelect('apartment-condominium');
+                populateCondominiumSelect('reading-condominium');
+                populateCondominiumSelect('filter-condominium');
+                populateCondominiumSelect('filter-reading-condominium');
+                populateCondominiumSelect('filter-bill-condominium');
+                populateCondominiumSelect('bill-condominium');
+            }
+            
+            function populateCondominiumSelect(selectId) {
+                const db = initDB();
+                const select = document.getElementById(selectId);
+                
+                // Mantieni la prima opzione, rimuovi le altre
+                const firstOption = select.options[0];
+                select.innerHTML = '';
+                select.appendChild(firstOption);
+                
+                db.condominiums.forEach(condominium => {
+                    const option = document.createElement('option');
+                    option.value = condominium.id;
+                    option.textContent = condominium.name;
+                    select.appendChild(option);
+                });
+            }
+            
+            function addCondominium() {
+                const form = document.getElementById('add-condominium-form');
+                
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                const db = initDB();
+                
+                const newCondominium = {
+                    id: generateId(),
+                    name: document.getElementById('condominium-name').value,
+                    code: document.getElementById('condominium-code').value,
+                    address: document.getElementById('condominium-address').value,
+                    city: document.getElementById('condominium-city').value,
+                    zip: document.getElementById('condominium-zip').value,
+                    admin: document.getElementById('condominium-admin').value,
+                    email: document.getElementById('condominium-email').value,
+                    phone: document.getElementById('condominium-phone').value,
+                    fiscalCode: document.getElementById('condominium-fiscal-code').value,
+                    notes: document.getElementById('condominium-notes').value,
+                    createdAt: new Date().toISOString()
+                };
+                
+                db.condominiums.push(newCondominium);
+                saveDB(db);
+                
+                // Chiudi il modal e resetta il form
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addCondominiumModal'));
+                modal.hide();
+                form.reset();
+                
+                // Ricarica i dati
+                loadDashboard();
+                loadCondominiums();
+                
+                alert('Condominio aggiunto con successo!');
+            }
+            
+            function editCondominium(condominiumId) {
+                // Implementare in futuro
+                alert('Funzione di modifica condominio in fase di implementazione.');
+            }
+            
+            function viewCondominium(condominiumId) {
+                // Implementare in futuro
+                alert('Funzione di visualizzazione dettagli condominio in fase di implementazione.');
+            }
+            
+            function deleteCondominium(condominiumId) {
+                if (!confirm('Sei sicuro di voler eliminare questo condominio? Questa azione eliminerà anche tutti gli appartamenti, le letture e le fatture associate.')) {
+                    return;
+                }
+                
+                const db = initDB();
+                
+                // Trova gli appartamenti associati
+                const associatedApartmentIds = db.apartments
+                    .filter(apt => apt.condominiumId === condominiumId)
+                    .map(apt => apt.id);
+                
+                // Elimina le letture degli appartamenti
+                db.readings = db.readings.filter(reading => !associatedApartmentIds.includes(reading.apartmentId));
+                
+                // Elimina le fatture degli appartamenti
+                db.bills = db.bills.filter(bill => !associatedApartmentIds.includes(bill.apartmentId));
+                
+                // Elimina gli appartamenti
+                db.apartments = db.apartments.filter(apt => apt.condominiumId !== condominiumId);
+                
+                // Elimina il condominio
+                db.condominiums = db.condominiums.filter(c => c.id !== condominiumId);
+                
+                saveDB(db);
+                
+                loadDashboard();
+                loadCondominiums();
+                loadApartments();
+                loadReadings();
+                loadBills();
+                
+                alert('Condominio eliminato con successo!');
+            }
+            
+            // APPARTAMENTI
+            function loadApartments() {
+                const db = initDB();
+                const filterCondominiumId = document.getElementById('filter-condominium').value;
+                
+                // Filtra gli appartamenti in base al condominio selezionato
+                let filteredApartments = db.apartments;
+                if (filterCondominiumId) {
+                    filteredApartments = filteredApartments.filter(apt => apt.condominiumId === filterCondominiumId);
+                }
+                
+                // Popola tabella appartamenti
+                const apartmentsTable = document.getElementById('apartments-table').getElementsByTagName('tbody')[0];
+                apartmentsTable.innerHTML = '';
+                
+                if (filteredApartments.length === 0) {
+                    apartmentsTable.innerHTML = '<tr><td colspan="7" class="text-center">Nessun appartapartmentsTable.innerHTML = '<tr><td colspan="7" class="text-center">Nessun appartamento trovato</td></tr>';
+            } else {
+                filteredApartments.forEach(apartment => {
+                    const condominium = db.condominiums.find(c => c.id === apartment.condominiumId);
+                    const condominiumName = condominium ? condominium.name : 'N/D';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${apartment.id.substring(0, 6)}</td>
+                        <td>${condominiumName}</td>
+                        <td>${apartment.number}</td>
+                        <td>${apartment.ownerName}</td>
+                        <td>${apartment.size}</td>
+                        <td>${apartment.residents}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="viewApartment('${apartment.id}')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success me-1" onclick="editApartment('${apartment.id}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteApartment('${apartment.id}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    apartmentsTable.appendChild(row);
+                });
+            }
+        }
+        
+        function addApartment() {
+            const form = document.getElementById('add-apartment-form');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const db = initDB();
+            
+            const newApartment = {
+                id: generateId(),
+                condominiumId: document.getElementById('apartment-condominium').value,
+                number: document.getElementById('apartment-number').value,
+                floor: document.getElementById('apartment-floor').value,
+                size: Number(document.getElementById('apartment-size').value),
+                ownerName: document.getElementById('apartment-owner-name').value,
+                ownerFiscalCode: document.getElementById('apartment-owner-fiscal-code').value,
+                ownerEmail: document.getElementById('apartment-owner-email').value,
+                ownerPhone: document.getElementById('apartment-owner-phone').value,
+                residents: Number(document.getElementById('apartment-residents').value),
+                type: document.getElementById('apartment-type').value,
+                notes: document.getElementById('apartment-notes').value,
+                createdAt: new Date().toISOString()
+            };
+            
+            db.apartments.push(newApartment);
+            saveDB(db);
+            
+            // Chiudi il modal e resetta il form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addApartmentModal'));
+            modal.hide();
+            form.reset();
+            
+            // Ricarica i dati
+            loadDashboard();
+            loadApartments();
+            
+            alert('Appartamento aggiunto con successo!');
+        }
+        
+        function editApartment(apartmentId) {
+            // Implementare in futuro
+            alert('Funzione di modifica appartamento in fase di implementazione.');
+        }
+        
+        function viewApartment(apartmentId) {
+            // Implementare in futuro
+            alert('Funzione di visualizzazione dettagli appartamento in fase di implementazione.');
+        }
+        
+        function deleteApartment(apartmentId) {
+            if (!confirm('Sei sicuro di voler eliminare questo appartamento? Questa azione eliminerà anche tutte le letture e le fatture associate.')) {
+                return;
+            }
+            
+            const db = initDB();
+            
+            // Elimina le letture dell'appartamento
+            db.readings = db.readings.filter(reading => reading.apartmentId !== apartmentId);
+            
+            // Elimina le fatture dell'appartamento
+            db.bills = db.bills.filter(bill => bill.apartmentId !== apartmentId);
+            
+            // Elimina l'appartamento
+            db.apartments = db.apartments.filter(apt => apt.id !== apartmentId);
+            
+            saveDB(db);
+            
+            loadDashboard();
+            loadApartments();
+            loadReadings();
+            loadBills();
+            
+            alert('Appartamento eliminato con successo!');
+        }
+        
+        // LETTURE
+        function loadReadings() {
+            const db = initDB();
+            const filterCondominiumId = document.getElementById('filter-reading-condominium').value;
+            const filterApartmentId = document.getElementById('filter-reading-apartment').value;
+            const filterType = document.getElementById('filter-reading-type').value;
+            
+            // Filtra le letture in base ai criteri selezionati
+            let filteredReadings = db.readings;
+            
+            if (filterCondominiumId) {
+                const apartmentsInCondominium = db.apartments
+                    .filter(apt => apt.condominiumId === filterCondominiumId)
+                    .map(apt => apt.id);
+                
+                filteredReadings = filteredReadings.filter(reading => 
+                    apartmentsInCondominium.includes(reading.apartmentId)
+                );
+            }
+            
+            if (filterApartmentId) {
+                filteredReadings = filteredReadings.filter(reading => reading.apartmentId === filterApartmentId);
+            }
+            
+            if (filterType) {
+                filteredReadings = filteredReadings.filter(reading => reading.type === filterType);
+            }
+            
+            // Ordina per data più recente
+            filteredReadings.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Popola tabella letture
+            const readingsTable = document.getElementById('readings-table').getElementsByTagName('tbody')[0];
+            readingsTable.innerHTML = '';
+            
+            if (filteredReadings.length === 0) {
+                readingsTable.innerHTML = '<tr><td colspan="7" class="text-center">Nessuna lettura trovata</td></tr>';
+            } else {
+                filteredReadings.forEach(reading => {
+                    const apartment = db.apartments.find(apt => apt.id === reading.apartmentId);
+                    const apartmentNumber = apartment ? apartment.number : 'N/D';
+                    
+                    const condominium = apartment 
+                        ? db.condominiums.find(c => c.id === apartment.condominiumId) 
+                        : null;
+                    const condominiumName = condominium ? condominium.name : 'N/D';
+                    
+                    const typeMap = {
+                        'electricity': 'Elettricità',
+                        'water': 'Acqua',
+                        'gas': 'Gas'
+                    };
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${reading.id.substring(0, 6)}</td>
+                        <td>${condominiumName}</td>
+                        <td>${apartmentNumber}</td>
+                        <td>${typeMap[reading.type]}</td>
+                        <td>${formatDate(reading.date)}</td>
+                        <td>${reading.value} ${db.tariffs[reading.type].unit}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-success me-1" onclick="editReading('${reading.id}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteReading('${reading.id}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    readingsTable.appendChild(row);
+                });
+            }
+        }
+        
+        function updateApartmentFilter() {
+            const condominiumId = document.getElementById('filter-reading-condominium').value;
+            populateApartmentSelect('filter-reading-apartment', condominiumId);
+            loadReadings();
+        }
+        
+        function updateBillApartmentFilter() {
+            const condominiumId = document.getElementById('filter-bill-condominium').value;
+            populateApartmentSelect('filter-bill-apartment', condominiumId);
+            loadBills();
+        }
+        
+        function populateApartmentSelect(selectId, condominiumId) {
+            const db = initDB();
+            const select = document.getElementById(selectId);
+            
+            // Mantieni la prima opzione, rimuovi le altre
+            const firstOption = select.options[0];
+            select.innerHTML = '';
+            select.appendChild(firstOption);
+            
+            // Se c'è una seconda opzione (come "Tutti gli Appartamenti" nella generazione fatture), mantienila
+            if (select.options.length > 1) {
+                const secondOption = select.options[1];
+                select.appendChild(secondOption);
+            }
+            
+            if (condominiumId) {
+                const apartments = db.apartments.filter(apt => apt.condominiumId === condominiumId);
+                
+                apartments.forEach(apartment => {
+                    const option = document.createElement('option');
+                    option.value = apartment.id;
+                    option.textContent = `${apartment.number} - ${apartment.ownerName}`;
+                    select.appendChild(option);
+                });
+            }
+        }
+        
+        function loadApartmentsForCondominium() {
+            const condominiumId = document.getElementById('reading-condominium').value;
+            populateApartmentSelect('reading-apartment', condominiumId);
+        }
+        
+        function loadApartmentsForBilling() {
+            const condominiumId = document.getElementById('bill-condominium').value;
+            populateApartmentSelect('bill-apartment', condominiumId);
+        }
+        
+        function addReading() {
+            const form = document.getElementById('add-reading-form');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const db = initDB();
+            
+            const newReading = {
+                id: generateId(),
+                apartmentId: document.getElementById('reading-apartment').value,
+                type: document.getElementById('reading-type').value,
+                date: document.getElementById('reading-date').value,
+                value: Number(document.getElementById('reading-value').value),
+                notes: document.getElementById('reading-notes').value,
+                createdAt: new Date().toISOString()
+            };
+            
+            db.readings.push(newReading);
+            saveDB(db);
+            
+            // Chiudi il modal e resetta il form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addReadingModal'));
+            modal.hide();
+            form.reset();
+            
+            // Ricarica i dati
+            loadDashboard();
+            loadReadings();
+            
+            alert('Lettura registrata con successo!');
+        }
+        
+        function editReading(readingId) {
+            // Implementare in futuro
+            alert('Funzione di modifica lettura in fase di implementazione.');
+        }
+        
+        function deleteReading(readingId) {
+            if (!confirm('Sei sicuro di voler eliminare questa lettura?')) {
+                return;
+            }
+            
+            const db = initDB();
+            
+            // Elimina la lettura
+            db.readings = db.readings.filter(reading => reading.id !== readingId);
+            
+            saveDB(db);
+            
+            loadDashboard();
+            loadReadings();
+            
+            alert('Lettura eliminata con successo!');
+        }
+        
+        // FATTURE
+        function loadBills() {
+            const db = initDB();
+            const filterCondominiumId = document.getElementById('filter-bill-condominium').value;
+            const filterApartmentId = document.getElementById('filter-bill-apartment').value;
+            const filterPeriod = document.getElementById('filter-bill-period').value;
+            
+            // Filtra le fatture in base ai criteri selezionati
+            let filteredBills = db.bills;
+            
+            if (filterCondominiumId) {
+                const apartmentsInCondominium = db.apartments
+                    .filter(apt => apt.condominiumId === filterCondominiumId)
+                    .map(apt => apt.id);
+                
+                filteredBills = filteredBills.filter(bill => 
+                    apartmentsInCondominium.includes(bill.apartmentId)
+                );
+            }
+            
+            if (filterApartmentId) {
+                filteredBills = filteredBills.filter(bill => bill.apartmentId === filterApartmentId);
+            }
+            
+            if (filterPeriod) {
+                filteredBills = filteredBills.filter(bill => `${bill.startDate}|${bill.endDate}` === filterPeriod);
+            }
+            
+            // Ordina per data di emissione più recente
+            filteredBills.sort((a, b) => new Date(b.issueDate) - new Date(a.issueDate));
+            
+            // Popola tabella fatture
+            const billsTable = document.getElementById('bills-table').getElementsByTagName('tbody')[0];
+            billsTable.innerHTML = '';
+            
+            if (filteredBills.length === 0) {
+                billsTable.innerHTML = '<tr><td colspan="8" class="text-center">Nessuna fattura trovata</td></tr>';
+            } else {
+                filteredBills.forEach(bill => {
+                    const apartment = db.apartments.find(apt => apt.id === bill.apartmentId);
+                    const apartmentNumber = apartment ? apartment.number : 'N/D';
+                    
+                    const condominium = apartment 
+                        ? db.condominiums.find(c => c.id === apartment.condominiumId) 
+                        : null;
+                    const condominiumName = condominium ? condominium.name : 'N/D';
+                    
+                    const statusClass = bill.status === 'paid' ? 'bg-success' : 'bg-warning';
+                    const statusText = bill.status === 'paid' ? 'Pagata' : 'Da pagare';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${bill.id.substring(0, 6)}</td>
+                        <td>${condominiumName}</td>
+                        <td>${apartmentNumber}</td>
+                        <td>${formatDate(bill.startDate)} - ${formatDate(bill.endDate)}</td>
+                        <td>${formatDate(bill.issueDate)}</td>
+                        <td>€ ${bill.totalAmount.toFixed(2)}</td>
+                        <td><span class="badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="viewBill('${bill.id}')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success me-1" onclick="markAsPaid('${bill.id}')">
+                                <i class="bi bi-check-circle"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteBill('${bill.id}')">
+                                <i class="bi bi-trash"></i></button>
+                        </td>
+                    `;
+                    billsTable.appendChild(row);
+                });
+            }
+            
+            // Popola filtro periodi
+            const periodFilter = document.getElementById('filter-bill-period');
+            
+            // Mantieni la prima opzione, rimuovi le altre
+            const firstOption = periodFilter.options[0];
+            periodFilter.innerHTML = '';
+            periodFilter.appendChild(firstOption);
+            
+            // Estrai periodi unici
+            const uniquePeriods = [...new Set(db.bills.map(bill => `${bill.startDate}|${bill.endDate}`))];
+            
+            uniquePeriods.forEach(period => {
+                const [startDate, endDate] = period.split('|');
+                const option = document.createElement('option');
+                option.value = period;
+                option.textContent = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+                periodFilter.appendChild(option);
+            });
+        }
+        
+        function generateBill() {
+            const form = document.getElementById('generate-bill-form');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const db = initDB();
+            
+            const condominiumId = document.getElementById('bill-condominium').value;
+            const apartmentId = document.getElementById('bill-apartment').value;
+            const startDate = document.getElementById('bill-start-date').value;
+            const endDate = document.getElementById('bill-end-date').value;
+            const issueDate = document.getElementById('bill-issue-date').value;
+            const dueDate = document.getElementById('bill-due-date').value;
+            
+            const includeAllUtilities = document.getElementById('include-all-utilities').checked;
+            const utilities = includeAllUtilities 
+                ? ['electricity', 'water', 'gas'] 
+                : [
+                    document.getElementById('include-electricity').checked ? 'electricity' : null,
+                    document.getElementById('include-water').checked ? 'water' : null,
+                    document.getElementById('include-gas').checked ? 'gas' : null
+                ].filter(Boolean);
+            
+            // Se è selezionato "Tutti gli Appartamenti"
+            if (apartmentId === 'all') {
+                const condominiumApartments = db.apartments.filter(apt => apt.condominiumId === condominiumId);
+                
+                if (condominiumApartments.length === 0) {
+                    alert('Nessun appartamento trovato per questo condominio.');
+                    return;
+                }
+                
+                for (const apartment of condominiumApartments) {
+                    createBillForApartment(apartment.id, startDate, endDate, issueDate, dueDate, utilities);
+                }
+                
+                alert(`Fatture generate con successo per ${condominiumApartments.length} appartamenti!`);
+            } else {
+                createBillForApartment(apartmentId, startDate, endDate, issueDate, dueDate, utilities);
+                alert('Fattura generata con successo!');
+            }
+            
+            // Chiudi il modal e resetta il form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('generateBillModal'));
+            modal.hide();
+            form.reset();
+            
+            // Ricarica i dati
+            loadDashboard();
+            loadBills();
+        }
+        
+        function createBillForApartment(apartmentId, startDate, endDate, issueDate, dueDate, utilities) {
+            const db = initDB();
+            
+            // Trova appartamento
+            const apartment = db.apartments.find(apt => apt.id === apartmentId);
+            if (!apartment) {
+                console.error('Appartamento non trovato:', apartmentId);
+                return null;
+            }
+            
+            // Trova condominio
+            const condominium = db.condominiums.find(c => c.id === apartment.condominiumId);
+            if (!condominium) {
+                console.error('Condominio non trovato per appartamento:', apartmentId);
+                return null;
+            }
+            
+            // Calcola consumi per ogni utenza
+            const consumptions = {};
+            const amounts = {};
+            let totalAmount = 0;
+            
+            for (const utility of utilities) {
+                // Trova le letture nel periodo per questa utenza
+                const readings = db.readings
+                    .filter(r => r.apartmentId === apartmentId && r.type === utility)
+                    .filter(r => r.date >= startDate && r.date <= endDate)
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                if (readings.length < 2) {
+                    consumptions[utility] = 0;
+                    amounts[utility] = db.tariffs[utility].fixedCost;
+                    totalAmount += db.tariffs[utility].fixedCost;
+                    continue;
+                }
+                
+                // Calcola consumo tra prima e ultima lettura
+                const firstReading = readings[0];
+                const lastReading = readings[readings.length - 1];
+                
+                const consumption = lastReading.value - firstReading.value;
+                const variableCost = consumption * db.tariffs[utility].price;
+                const fixedCost = db.tariffs[utility].fixedCost;
+                const totalCost = variableCost + fixedCost;
+                
+                consumptions[utility] = consumption;
+                amounts[utility] = totalCost;
+                totalAmount += totalCost;
+            }
+            
+            // Crea la fattura
+            const bill = {
+                id: generateId(),
+                apartmentId,
+                startDate,
+                endDate,
+                issueDate,
+                dueDate,
+                consumptions,
+                amounts,
+                totalAmount,
+                status: 'unpaid',
+                createdAt: new Date().toISOString()
+            };
+            
+            db.bills.push(bill);
+            saveDB(db);
+            
+            return bill;
+        }
+        
+        function viewBill(billId) {
+            const db = initDB();
+            
+            // Trova la fattura
+            const bill = db.bills.find(b => b.id === billId);
+            if (!bill) {
+                alert('Fattura non trovata.');
+                return;
+            }
+            
+            // Trova appartamento
+            const apartment = db.apartments.find(apt => apt.id === bill.apartmentId);
+            if (!apartment) {
+                alert('Appartamento non trovato per questa fattura.');
+                return;
+            }
+            
+            // Trova condominio
+            const condominium = db.condominiums.find(c => c.id === apartment.condominiumId);
+            if (!condominium) {
+                alert('Condominio non trovato per questa fattura.');
+                return;
+            }
+            
+            // Genera anteprima fattura
+            const billPreview = document.getElementById('bill-preview');
+            
+            const typeMap = {
+                'electricity': 'Elettricità',
+                'water': 'Acqua',
+                'gas': 'Gas'
+            };
+            
+            const utilityRows = Object.keys(bill.consumptions).map(utility => {
+                const consumption = bill.consumptions[utility];
+                const amount = bill.amounts[utility];
+                
+                return `
+                    <tr>
+                        <td>${typeMap[utility]}</td>
+                        <td>${consumption} ${db.tariffs[utility].unit}</td>
+                        <td>
+                            ${db.tariffs[utility].price.toFixed(5)} €/${db.tariffs[utility].unit}
+                            <br><small>Quota fissa: ${db.tariffs[utility].fixedCost.toFixed(2)} €</small>
+                        </td>
+                        <td class="text-end">${amount.toFixed(2)} €</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            billPreview.innerHTML = `
+                <div class="container">
+                    <div class="row mb-4">
+                        <div class="col-8">
+                            <h4>Fattura n. ${bill.id.substring(0, 6)}</h4>
+                            <p>
+                                <strong>Data emissione:</strong> ${formatDate(bill.issueDate)}<br>
+                                <strong>Periodo:</strong> ${formatDate(bill.startDate)} - ${formatDate(bill.endDate)}<br>
+                                <strong>Scadenza:</strong> ${formatDate(bill.dueDate)}
+                            </p>
+                        </div>
+                        <div class="col-4 text-end">
+                            <h5>Stato: 
+                                <span class="badge ${bill.status === 'paid' ? 'bg-success' : 'bg-warning'}">
+                                    ${bill.status === 'paid' ? 'Pagata' : 'Da pagare'}
+                                </span>
+                            </h5>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Dati Condominio</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>
+                                        <strong>${condominium.name}</strong><br>
+                                        ${condominium.address}<br>
+                                        ${condominium.zip} ${condominium.city}<br>
+                                        ${condominium.fiscalCode ? `<strong>Cod. Fiscale:</strong> ${condominium.fiscalCode}<br>` : ''}
+                                        ${condominium.admin ? `<strong>Amministratore:</strong> ${condominium.admin}<br>` : ''}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Dati Utente</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>
+                                        <strong>${apartment.ownerName}</strong><br>
+                                        Appartamento n. ${apartment.number}${apartment.floor ? `, Piano ${apartment.floor}` : ''}<br>
+                                        ${apartment.ownerFiscalCode ? `<strong>Cod. Fiscale:</strong> ${apartment.ownerFiscalCode}<br>` : ''}
+                                        ${apartment.ownerEmail ? `<strong>Email:</strong> ${apartment.ownerEmail}<br>` : ''}
+                                        ${apartment.ownerPhone ? `<strong>Telefono:</strong> ${apartment.ownerPhone}<br>` : ''}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Dettaglio Consumi</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Utenza</th>
+                                        <th>Consumo</th>
+                                        <th>Tariffa</th>
+                                        <th class="text-end">Importo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${utilityRows}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-primary">
+                                        <th colspan="3">Totale</th>
+                                        <th class="text-end">${bill.totalAmount.toFixed(2)} €</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <strong>Modalità di pagamento:</strong> Bonifico bancario entro la data di scadenza.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Apri il modal
+            const modal = new bootstrap.Modal(document.getElementById('viewBillModal'));
+            modal.show();
+        }
+        
+        function markAsPaid(billId) {
+            if (!confirm('Contrassegnare questa fattura come pagata?')) {
+                return;
+            }
+            
+            const db = initDB();
+            
+            // Trova la fattura e aggiorna stato
+            const billIndex = db.bills.findIndex(b => b.id === billId);
+            if (billIndex === -1) {
+                alert('Fattura non trovata.');
+                return;
+            }
+            
+            db.bills[billIndex].status = 'paid';
+            saveDB(db);
+            
+            loadBills();
+            
+            alert('Fattura contrassegnata come pagata.');
+        }
+        
+        function deleteBill(billId) {
+            if (!confirm('Sei sicuro di voler eliminare questa fattura?')) {
+                return;
+            }
+            
+            const db = initDB();
+            
+            // Elimina la fattura
+            db.bills = db.bills.filter(bill => bill.id !== billId);
+            
+            saveDB(db);
+            
+            loadDashboard();
+            loadBills();
+            
+            alert('Fattura eliminata con successo!');
+        }
+        
+        function printBill() {
+            window.print();
+        }
+        
+        function downloadBillPDF() {
+            alert('Funzione di download PDF in fase di implementazione.');
+        }
+        
+        // IMPOSTAZIONI
+        function loadCompanyData() {
+            const db = initDB();
+            
+            document.getElementById('company-name').value = db.company.name || '';
+            document.getElementById('company-vat').value = db.company.vat || '';
+            document.getElementById('company-address').value = db.company.address || '';
+            document.getElementById('company-city').value = db.company.city || '';
+            document.getElementById('company-zip').value = db.company.zip || '';
+            document.getElementById('company-email').value = db.company.email || '';
+            document.getElementById('company-phone').value = db.company.phone || '';
+            
+            // Aggiungi event listener al form
+            document.getElementById('company-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveCompanyData();
+            });
+        }
+        
+        function saveCompanyData() {
+            const db = initDB();
+            
+            db.company = {
+                name: document.getElementById('company-name').value,
+                vat: document.getElementById('company-vat').value,
+                address: document.getElementById('company-address').value,
+                city: document.getElementById('company-city').value,
+                zip: document.getElementById('company-zip').value,
+                email: document.getElementById('company-email').value,
+                phone: document.getElementById('company-phone').value
+            };
+            
+            saveDB(db);
+            
+            alert('Dati aziendali salvati con successo!');
+        }
+        
+        function editTariff(tariffType) {
+            const db = initDB();
+            
+            const tariff = db.tariffsconst tariff = db.tariffs[tariffType];
+            if (!tariff) {
+                alert('Tariffa non trovata.');
+                return;
+            }
+            
+            // Imposta i valori nel modal
+            document.getElementById('tariff-type').value = tariffType;
+            document.getElementById('tariff-name').value = {
+                'electricity': 'Elettricità',
+                'water': 'Acqua',
+                'gas': 'Gas'
+            }[tariffType];
+            document.getElementById('tariff-price').value = tariff.price;
+            document.getElementById('tariff-unit').textContent = `€/${tariff.unit}`;
+            document.getElementById('tariff-fixed-cost').value = tariff.fixedCost;
+            document.getElementById('tariff-description').value = tariff.description || '';
+            
+            // Apri il modal
+            const modal = new bootstrap.Modal(document.getElementById('editTariffModal'));
+            modal.show();
+        }
+        
+        function saveTariff() {
+            const form = document.getElementById('edit-tariff-form');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const db = initDB();
+            
+            const tariffType = document.getElementById('tariff-type').value;
+            const tariff = db.tariffs[tariffType];
+            
+            if (!tariff) {
+                alert('Tariffa non trovata.');
+                return;
+            }
+            
+            tariff.price = Number(document.getElementById('tariff-price').value);
+            tariff.fixedCost = Number(document.getElementById('tariff-fixed-cost').value);
+            tariff.description = document.getElementById('tariff-description').value;
+            
+            saveDB(db);
+            
+            // Chiudi il modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editTariffModal'));
+            modal.hide();
+            
+            alert('Tariffa aggiornata con successo!');
+        }
+        
+        // BACKUP & RIPRISTINO
+        function exportData() {
+            const db = initDB();
+            
+            // Crea file JSON di backup
+            const dataStr = JSON.stringify(db, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            // Crea elemento di download
+            const exportFileDefaultName = `condominium_management_backup_${new Date().toISOString().slice(0, 10)}.json`;
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+        
+        function importData() {
+            const fileInput = document.getElementById('import-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Seleziona un file da importare.');
+                return;
+            }
+            
+            if (file.type !== 'application/json') {
+                alert('Il file deve essere in formato JSON.');
+                return;
+            }
+            
+            if (!confirm('L\'importazione sovrascriverà tutti i dati esistenti. Vuoi continuare?')) {
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Valida dati importati
+                    if (!importedData.condominiums || !importedData.apartments || 
+                        !importedData.readings || !importedData.bills || !importedData.tariffs) {
+                        throw new Error('Il file non contiene dati validi.');
+                    }
+                    
+                    // Salva i dati
+                    saveDB(importedData);
+                    
+                    // Ricarica tutto
+                    loadDashboard();
+                    loadCondominiums();
+                    loadApartments();
+                    loadReadings();
+                    loadBills();
+                    loadCompanyData();
+                    
+                    alert('Dati importati con successo!');
+                } catch (error) {
+                    alert(`Errore durante l'importazione: ${error.message}`);
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
